@@ -74,12 +74,18 @@ void main()
 
 				printf("\tIP address:\t%s /%d\n", lpszAddressString, pUnicast->OnLinkPrefixLength);
 
-				//TODO Конвертировать маску в десятично точковый формат.
+				//DONE Конвертировать маску в десятично точковый формат.
 				ULONG lMask = 0;
 
-				if (ConvertLengthToIpv4Mask(pUnicast->OnLinkPrefixLength, &lMask) == NO_ERROR)
+				union
+					{
+						ULONG ul;
+						BYTE b[4];
+					} mask;
+
+				if (ConvertLengthToIpv4Mask(pUnicast->OnLinkPrefixLength, &mask.ul) == NO_ERROR)
 				{
-					cout << "\tSubnet prefix: " << lMask << endl;
+					printf("\tSubnet prefix:\t %u.%u.%u.%u\n",mask.b[0],mask.b[1],mask.b[2],mask.b[3] );
 				}
 
 				HeapFree(GetProcessHeap(), 0, lpszAddressString);
@@ -90,9 +96,11 @@ void main()
 				cout << "Phisical address (MAC): ";
 				for (int i = 0; i < pCurAddress->PhysicalAddressLength; i++)
 				{
-					cout.width(2);
+					/*cout.width(2);
 					cout.fill('0');
-					cout << hex << (int)pCurAddress->PhysicalAddress[i];
+					cout << hex << (int)pCurAddress->PhysicalAddress[i];*/
+
+					printf("%2.X", (int)pCurAddress->PhysicalAddress[i]);
 					if (i != pCurAddress->PhysicalAddressLength-1)
 					{
 						cout << ":";
