@@ -72,7 +72,7 @@ extern void init_ping_packet(ICMPHeader* icmp_hdr, int packet_size, int seq_no)
 	while (bytes_left)
 	{
 		memcpy(deadpart, &dead, min(sizeof(dead), bytes_left));
-		bytes_left -= dead;
+		bytes_left -= sizeof(dead);
 		deadpart += sizeof(dead);
 	}
 
@@ -96,7 +96,7 @@ extern int send_ping(SOCKET sd, const sockaddr_in& dest, ICMPHeader* send_buf, i
 	return 0;
 }
 
-extern int reciv_ping(SOCKET sd, sockaddr_in& source, IPHeader* recv_buf, int packet_size)
+extern int recv_ping(SOCKET sd, sockaddr_in& source, IPHeader* recv_buf, int packet_size)
 {
 	using namespace std;
 	//ќжидаем ответ
