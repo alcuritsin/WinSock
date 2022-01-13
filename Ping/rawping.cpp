@@ -114,10 +114,55 @@ extern int reciv_ping(SOCKET sd, sockaddr_in& source, IPHeader* recv_buf, int pa
 		}
 		else
 		{
-			cerr << " error #" << last_error <<endl;
+			cerr << " error #" << last_error << endl;
 		}
 		return -1;
 	}
 	return 0;
 }
 
+int decode_reply(IPHeader* reply, int bytes, sockaddr_in* from)
+{
+	using namespace std;
+	unsigned short	header_len = reply->h_len * 4;
+	// При помощи арифметики указателей переходим с начала IP-заголовка на начало ICMP-заголовка
+	ICMPHeader* icmphdr = (ICMPHeader*)((char*)reply + header_len);
+
+	if (bytes < header_len + ICMP_MIN)
+	{
+		cerr << "too few bytes from " << inet_ntoa(from->sin_addr) << endl;
+		return -1;
+	}
+	else if (icmphdr->type != ICMP_ECHO_REPLAY)
+	{
+		if (icmphdr->type != ICNP_TTL_EXPIRE)
+		{
+			if (icmphdr->type == ICMP_DEST_UNREACH)
+			{
+				cerr << "Unknown ICMP-packet type " << (int)icmphdr->type << endl;
+			}
+			return -1;
+		}
+	}
+	else if (icmphdr->id != (USHORT)GetCurrentProcessId())
+	{
+		return -2;
+	}
+
+	int nHops = 256 - reply->ttl;
+	if (nHops == 192) nHops = 1;
+	else if (nHops == 128) nHops = 0;
+
+	cout << bytes << " bytes from " << inet_ntoa(from->sin_addr) << ", icmp_seq " << icmphdr->seq << ", ";
+
+	if (icmphdr->type == ICNP_TTL_EXPIRE)
+	{
+		cout << "TTL expire" << endl;
+	}
+	else
+	{
+		cout << nHops << " hops ";
+		cout << ", time: " << (GetTickCount() - icmphdr->timestamp) << " ms." << endl;
+	}
+	return 0;
+}
