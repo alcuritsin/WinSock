@@ -101,7 +101,15 @@ extern int recv_ping(SOCKET sd, sockaddr_in& source, IPHeader* recv_buf, int pac
 	using namespace std;
 	//ќжидаем ответ
 	int fromlen = sizeof(source);
-	int bread = recvfrom(sd, (char*)recv_buf, packet_size + sizeof(IPHeader), 0, (sockaddr*)&source, &fromlen);
+	int bread = recvfrom
+	(
+		sd,
+		(char*)recv_buf,
+		packet_size + sizeof(IPHeader),
+		0,
+		(sockaddr*)&source,
+		&fromlen
+	);
 
 	if (bread == SOCKET_ERROR)
 	{
