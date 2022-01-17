@@ -36,7 +36,7 @@ struct ICMPHeader
 	USHORT checksum;
 	USHORT id; //id сообщения
 	USHORT seq; //порядковый номер сообщения
-	USHORT timestamp; //временная метка
+	DWORD timestamp; //временная метка
 };
 
 #ifdef _MSC_VER

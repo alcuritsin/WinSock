@@ -69,7 +69,7 @@ extern void init_ping_packet(ICMPHeader* icmp_hdr, int packet_size, int seq_no)
 	char* deadpart = (char*)icmp_hdr + sizeof(ICMPHeader);
 	int bytes_left = packet_size - sizeof(ICMPHeader);
 
-	while (bytes_left)
+	while (bytes_left>=0) //тут добавил >0 иначе не выходило и цикла
 	{
 		memcpy(deadpart, &dead, min(sizeof(dead), bytes_left));
 		bytes_left -= sizeof(dead);
@@ -121,7 +121,7 @@ extern int recv_ping(SOCKET sd, sockaddr_in& source, IPHeader* recv_buf, int pac
 	return 0;
 }
 
-int decode_reply(IPHeader* reply, int bytes, sockaddr_in* from)
+extern int decode_reply(IPHeader* reply, int bytes, sockaddr_in* from)
 {
 	using namespace std;
 	unsigned short	header_len = reply->h_len * 4;

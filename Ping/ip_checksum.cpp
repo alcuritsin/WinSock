@@ -1,7 +1,7 @@
 ﻿#define WIN32_LEAN_AND_MEAN
 #include"ip_checksum.h"
 
-USHORT ip_checksum(USHORT* buffer, int size)
+extern USHORT ip_checksum(USHORT* buffer, int size)
 {
 	// USHORT - unsigned short (2 byte)
 	unsigned int cksum = 0;

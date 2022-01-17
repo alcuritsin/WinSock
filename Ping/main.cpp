@@ -31,7 +31,8 @@ int main(int argc, char* argv[])
 	int seq_num = 0;
 	ICMPHeader* send_buf = 0;
 	IPHeader* recv_buf = 0;
-	int packet_size = MAX_PING_DATA_SIZE;
+	//int packet_size = MAX_PING_DATA_SIZE;
+	int packet_size = MAX_PING_PACKET_SIZE;
 	int ttl = DEFAULT_TTL;
 
 	WSAData wsaData;
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
 	{
 		while (true)
 		{
-			if (recv_ping(sd, src, recv_buf, MAX_PING_PACKET_SIZE) < 0)
+			if (recv_ping(sd, src, recv_buf, packet_size) < 0)
 			{
 				unsigned short header_len = recv_buf->h_len * 4;
 				ICMPHeader* icmphdr = (ICMPHeader*)((char*)recv_buf + header_len);
@@ -85,7 +86,7 @@ int main(int argc, char* argv[])
 int allocate_buffers(ICMPHeader*& send_buf, IPHeader*& recv_buf, int packet_size)
 {
 	send_buf = (ICMPHeader*)new char[packet_size];
-	recv_buf = (IPHeader*)new char[MAX_PING_PACKET_SIZE] {};
+	recv_buf = (IPHeader*)new char[packet_size] {};
 	if (send_buf == 0)
 	{
 		cerr << "Faild to allocate send buffer" << endl;
