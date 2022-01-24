@@ -9,13 +9,15 @@
 #define DEFAULT_PACKET_SIZE 32
 #define DEFAULT_TTL 128
 #define MAX_PING_DATA_SIZE 1024
+//#define MAX_PING_DATA_SIZE SHRT_MAX-20
 #define MAX_PING_PACKET_SIZE (MAX_PING_DATA_SIZE + sizeof(IPHeader))
 
 using namespace std;
 
 int allocate_buffers(ICMPHeader*& send_buf, IPHeader*& recv_buf, int packet_size);
 int cleanup(ICMPHeader*& send_buf, IPHeader*& recv_buf);
-int ping(char* address, int n);
+int ping(char* address, int n, int buffer_size);
+//char* find_ip_address(const char* str);
 
 int main(int argc, char* argv[])
 {
@@ -29,7 +31,47 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	ping(argv[1], 400);
+	char* address = nullptr;
+	int count = 4;
+	int buffer_size = DEFAULT_PACKET_SIZE;
+
+	for (int i = 0; i < argc; i++)
+	{
+		cout << argv[i] << endl;
+		// Address
+		if (strrchr(argv[i], '.')) address = argv[i];
+
+		// Number of request
+		if (strcmp(argv[i], "-n") == 0)
+		{
+			count = atoi(argv[i + 1]); //Преобразуем параметр в число
+			if (count < 0)
+			{
+				cout << "Wrong ping count" << endl;
+				return -1;
+			}
+		}
+
+		// Send buffer size
+		if (strcmp(argv[i], "-l") == 0)
+		{
+			int buf_t = atoi(argv[i + 1]);
+			if (buf_t >= DEFAULT_PACKET_SIZE && buf_t <= MAX_PING_DATA_SIZE)
+			{
+				buffer_size = buf_t;
+			}
+			else
+			{
+				cout << buf_t << " - Не верный размера, разрешение значения от "
+					<< DEFAULT_PACKET_SIZE << " до " << MAX_PING_DATA_SIZE << ", принят размер по умолчанию \n";
+			}
+		}
+	}
+
+	cout << "Target: " << address << endl;
+	cout << "Count request: " << count << endl;
+
+	ping(address, count, buffer_size);
 }
 
 int allocate_buffers(ICMPHeader*& send_buf, IPHeader*& recv_buf, int packet_size)
@@ -59,13 +101,13 @@ int cleanup(ICMPHeader*& send_buf, IPHeader*& recv_buf)
 	return 0;
 }
 
-int ping(char* address, int n)
+int ping(char* address, int n, int buffer_size)
 {
 	int seq_num = 0;
 	ICMPHeader* send_buf = 0;
 	IPHeader* recv_buf = 0;
 	//int packet_size = MAX_PING_DATA_SIZE;
-	int packet_size = DEFAULT_PACKET_SIZE;
+	int packet_size = buffer_size;
 	int ttl = DEFAULT_TTL;
 
 	WSAData wsaData;
@@ -92,7 +134,7 @@ int ping(char* address, int n)
 
 	for (int i = 0; i < n; i++)
 	{
-		init_ping_packet(send_buf, packet_size, seq_num);
+		init_ping_packet(send_buf, packet_size, i);
 
 		// Отправка запроса и получение ответа
 		if (send_ping(sd, dst, send_buf, packet_size) >= 0)
@@ -116,6 +158,7 @@ int ping(char* address, int n)
 				if (decode_reply(recv_buf, packet_size, &src) != -2) break;
 			}
 		}
+		Sleep(1000);
 	}
 
 	return cleanup(send_buf, recv_buf);
