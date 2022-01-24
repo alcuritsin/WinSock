@@ -29,13 +29,13 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	ping(argv[1], 4);
+	ping(argv[1], 400);
 }
 
 int allocate_buffers(ICMPHeader*& send_buf, IPHeader*& recv_buf, int packet_size)
 {
-	send_buf = (ICMPHeader*)new char[packet_size];
-	recv_buf = (IPHeader*)new char[packet_size] {};
+	send_buf = (ICMPHeader*)new char[packet_size] {};
+	recv_buf = (IPHeader*)new char[MAX_PING_PACKET_SIZE] {};
 	if (send_buf == 0)
 	{
 		cerr << "Faild to allocate send buffer" << endl;
@@ -75,23 +75,23 @@ int ping(char* address, int n)
 		return 1;
 	}
 
+	SOCKET sd;
+	sockaddr_in src, dst;
+	//src - source_ip (адрес источника)
+	//dst - destinitio_ip (адрес получателя)
+	if (setup_for_ping(address, ttl, sd, dst))
+	{
+		cerr << "Setup for ping faild" << endl;
+		return cleanup(send_buf, recv_buf);
+	}
+
+	if (allocate_buffers(send_buf, recv_buf, packet_size) < 0)
+	{
+		return cleanup(send_buf, recv_buf);
+	}
+
 	for (int i = 0; i < n; i++)
 	{
-		SOCKET sd;
-		sockaddr_in src, dst;
-		//src - source_ip (адрес источника)
-		//dst - destinitio_ip (адрес получателя)
-		if (setup_for_ping(address, ttl, sd, dst))
-		{
-			cerr << "Setup for ping faild" << endl;
-			return cleanup(send_buf, recv_buf);
-		}
-
-		if (allocate_buffers(send_buf, recv_buf, packet_size) < 0)
-		{
-			return cleanup(send_buf, recv_buf);
-		}
-
 		init_ping_packet(send_buf, packet_size, seq_num);
 
 		// Отправка запроса и получение ответа
@@ -117,5 +117,6 @@ int ping(char* address, int n)
 			}
 		}
 	}
-	return cleanup(send_buf,recv_buf);
+
+	return cleanup(send_buf, recv_buf);
 }
