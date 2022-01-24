@@ -15,6 +15,7 @@ using namespace std;
 
 int allocate_buffers(ICMPHeader*& send_buf, IPHeader*& recv_buf, int packet_size);
 int cleanup(ICMPHeader*& send_buf, IPHeader*& recv_buf);
+int ping(char* address, int n);
 
 int main(int argc, char* argv[])
 {
@@ -28,59 +29,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	int seq_num = 0;
-	ICMPHeader* send_buf = 0;
-	IPHeader* recv_buf = 0;
-	//int packet_size = MAX_PING_DATA_SIZE;
-	int packet_size = DEFAULT_PACKET_SIZE;
-	int ttl = DEFAULT_TTL;
-
-	WSAData wsaData;
-	if (WSAStartup(MAKEWORD(2, 1), &wsaData) != 0)
-	{
-		cerr << "Faild to find Winsock 2.1 or batter" << endl;
-		return 1;
-	}
-
-	SOCKET sd;
-	sockaddr_in src, dst;
-	//src - source_ip (адрес источника)
-	//dst - destinitio_ip (адрес получателя)
-	if (setup_for_ping(argv[1], ttl, sd, dst))
-	{
-		cerr << "Setup for ping faild" << endl;
-		return cleanup(send_buf, recv_buf);
-	}
-
-	if (allocate_buffers(send_buf, recv_buf, packet_size) < 0)
-	{
-		return cleanup(send_buf, recv_buf);
-	}
-
-	init_ping_packet(send_buf, packet_size, seq_num);
-
-	// Отправка запроса и получение ответа
-	if (send_ping(sd, dst, send_buf, packet_size) >= 0)
-	{
-		while (true)
-		{
-			if (recv_ping(sd, src, recv_buf, packet_size) < 0)
-			{
-				unsigned short header_len = recv_buf->h_len * 4;
-				ICMPHeader* icmphdr = (ICMPHeader*)((char*)recv_buf + header_len);
-				if (icmphdr->seq != seq_num)
-				{
-					cerr << "bed sequance number!" << endl;
-					continue;
-				}
-				else
-				{
-					break;
-				}
-			}
-			if (decode_reply(recv_buf, packet_size, &src) != -2) break;
-		}
-	}
+	ping(argv[1], 4);
 }
 
 int allocate_buffers(ICMPHeader*& send_buf, IPHeader*& recv_buf, int packet_size)
@@ -108,4 +57,65 @@ int cleanup(ICMPHeader*& send_buf, IPHeader*& recv_buf)
 	recv_buf = nullptr;
 	WSACleanup();
 	return 0;
+}
+
+int ping(char* address, int n)
+{
+	int seq_num = 0;
+	ICMPHeader* send_buf = 0;
+	IPHeader* recv_buf = 0;
+	//int packet_size = MAX_PING_DATA_SIZE;
+	int packet_size = DEFAULT_PACKET_SIZE;
+	int ttl = DEFAULT_TTL;
+
+	WSAData wsaData;
+	if (WSAStartup(MAKEWORD(2, 1), &wsaData) != 0)
+	{
+		cerr << "Faild to find Winsock 2.1 or batter" << endl;
+		return 1;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		SOCKET sd;
+		sockaddr_in src, dst;
+		//src - source_ip (адрес источника)
+		//dst - destinitio_ip (адрес получателя)
+		if (setup_for_ping(address, ttl, sd, dst))
+		{
+			cerr << "Setup for ping faild" << endl;
+			return cleanup(send_buf, recv_buf);
+		}
+
+		if (allocate_buffers(send_buf, recv_buf, packet_size) < 0)
+		{
+			return cleanup(send_buf, recv_buf);
+		}
+
+		init_ping_packet(send_buf, packet_size, seq_num);
+
+		// Отправка запроса и получение ответа
+		if (send_ping(sd, dst, send_buf, packet_size) >= 0)
+		{
+			while (true)
+			{
+				if (recv_ping(sd, src, recv_buf, packet_size) < 0)
+				{
+					unsigned short header_len = recv_buf->h_len * 4;
+					ICMPHeader* icmphdr = (ICMPHeader*)((char*)recv_buf + header_len);
+					if (icmphdr->seq != seq_num)
+					{
+						cerr << "bed sequance number!" << endl;
+						continue;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (decode_reply(recv_buf, packet_size, &src) != -2) break;
+			}
+		}
+	}
+	return cleanup(send_buf,recv_buf);
 }

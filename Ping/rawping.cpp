@@ -4,7 +4,6 @@
 #include<iostream>
 
 #include"rawping.h"
-#include"ip_checksum.h"
 
 extern int setup_for_ping(char* host, int ttl, SOCKET& sd, sockaddr_in& dest)
 {
