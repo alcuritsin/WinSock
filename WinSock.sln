@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ping", "Ping\Ping.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinSockClient", "WinSockClient\WinSockClient.vcxproj", "{0C1301A3-358B-4A00-A117-58FF8B433A34}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinSockServer", "WinSockServer\WinSockServer.vcxproj", "{54966B27-7505-4D94-B30D-2152BB9FB792}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{0C1301A3-358B-4A00-A117-58FF8B433A34}.Release|x64.Build.0 = Release|x64
 		{0C1301A3-358B-4A00-A117-58FF8B433A34}.Release|x86.ActiveCfg = Release|Win32
 		{0C1301A3-358B-4A00-A117-58FF8B433A34}.Release|x86.Build.0 = Release|Win32
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Debug|x64.ActiveCfg = Debug|x64
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Debug|x64.Build.0 = Debug|x64
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Debug|x86.ActiveCfg = Debug|Win32
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Debug|x86.Build.0 = Debug|Win32
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Release|x64.ActiveCfg = Release|x64
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Release|x64.Build.0 = Release|x64
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Release|x86.ActiveCfg = Release|Win32
+		{54966B27-7505-4D94-B30D-2152BB9FB792}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
