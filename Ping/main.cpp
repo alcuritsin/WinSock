@@ -163,3 +163,8 @@ int ping(char* address, int n, int buffer_size)
 
 	return cleanup(send_buf, recv_buf);
 }
+
+int trasert(char* address)
+{
+
+}
