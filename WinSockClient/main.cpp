@@ -105,7 +105,8 @@ int main(int argc, char* argv[])
 	//------------------------
 
 	int recvbuflen = DEFAULT_BUFLEN; //Размер буфера получения.
-	const char* sendbuf = "this is a text";
+	//const char* sendbuf = "this is a text";
+	const char* sendbuf = argv[2];
 	char recvbuf[DEFAULT_BUFLEN]{};
 
 	iResult = send(ConnectSocket, sendbuf, strlen(sendbuf), 0);

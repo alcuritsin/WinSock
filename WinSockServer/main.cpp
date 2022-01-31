@@ -17,7 +17,7 @@ using namespace std;
 5. Приём соединения от клиента
 6. Получение и отправка данных
 7. Отключение
-*/ 
+*/
 
 #include<WinSock2.h>
 //#include<Windows.h>
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	SOCKET ListenSocket = socket(result->ai_family, result->ai_socktype,result->ai_protocol);
+	SOCKET ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
 	if (ListenSocket == INVALID_SOCKET)
 	{
@@ -135,42 +135,45 @@ int main(int argc, char* argv[])
 	printf("Waiting for connections...\n");
 	SOCKET ClientSocket = INVALID_SOCKET;
 
-	ClientSocket = accept(ListenSocket, NULL, NULL);
-	if (ClientSocket == INVALID_SOCKET)
+	do
 	{
-		printf("accept faild: %d\n", WSAGetLastError());
-		
-		freeaddrinfo(result);
-		closesocket(ListenSocket);
-		WSACleanup();
-		return 1;
-	}
-	else
-	{
-		printf("Accepted connection\n");
-	}
+
+		ClientSocket = accept(ListenSocket, NULL, NULL);
+		if (ClientSocket == INVALID_SOCKET)
+		{
+			printf("accept faild: %d\n", WSAGetLastError());
+
+			freeaddrinfo(result);
+			closesocket(ListenSocket);
+			WSACleanup();
+			return 1;
+		}
+		else
+		{
+			printf("Accepted connection\n");
+		}
 #pragma endregion
 
 #pragma region 6. Получение и отправка данных
-	//------------------------
-	//6. Получение и отправка данных
-	//------------------------
-	char recvBuffer[DEFAULT_BUFLEN]{};
-	int iSendResult = 0;
-	int recvBuffLen = DEFAULT_BUFLEN;
+		//------------------------
+		//6. Получение и отправка данных
+		//------------------------
+		char recvBuffer[DEFAULT_BUFLEN]{};
+		int iSendResult = 0;
+		int recvBuffLen = DEFAULT_BUFLEN;
 
-	bool isExit = true; 
-	//char c;
+		bool isExit = true;
+		//char c;
 
-	//printf("Listening...\nPress esc for exit...\n");
-	do
-	{
-		//while (_kbhit())
-		//{
+		//printf("Listening...\nPress esc for exit...\n");
+		do
+		{
+			//while (_kbhit())
+			//{
 
-			//std::cout << "press esc to exit! " << std::endl;
-			//c = _getch();
-			//isExit = c != ESCAPE;
+				//std::cout << "press esc to exit! " << std::endl;
+				//c = _getch();
+				//isExit = c != ESCAPE;
 
 			iResult = recv(ClientSocket, recvBuffer, recvBuffLen, 0);
 			if (iResult > 0)
@@ -204,35 +207,40 @@ int main(int argc, char* argv[])
 				WSACleanup();
 				return 1;
 			}
-		//}
-		//isExit = _getch() != ESCAPE;
-	} while (iResult>0);
-	//} while (isExit);
+			//}
+			//isExit = _getch() != ESCAPE;
+		} while (iResult > 0);
+		//} while (isExit);
 #pragma endregion
 
 #pragma region 7. Отключение
 	//------------------------
 	//7. Отключение
 	//------------------------
-	iResult = shutdown(ClientSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR)
-	{
-		printf("shutdown faild: %d\n", WSAGetLastError());
-		freeaddrinfo(result);
-		closesocket(ClientSocket);
-		closesocket(ListenSocket);
-		WSACleanup();
-		return 1;
-	}
-	else
-	{
-		printf("Shutdown server");
-	}
+		iResult = shutdown(ClientSocket, SD_SEND);
+		if (iResult == SOCKET_ERROR)
+		{
+			printf("shutdown faild: %d\n", WSAGetLastError());
+			freeaddrinfo(result);
+			closesocket(ClientSocket);
+			closesocket(ListenSocket);
+			WSACleanup();
+			return 1;
+		}
+		else
+		{
+			//printf("Shutdown server");
+		}
 #pragma endregion
+		if (strcmp(recvBuffer, "close received")==0)
+		{
+			printf("Closing server\n");
+			break;
+		}
 
+	} while (true);
 	freeaddrinfo(result);
-
-	closesocket(ListenSocket); 
+	closesocket(ListenSocket);
 	WSACleanup();
 
 	system("pause");
