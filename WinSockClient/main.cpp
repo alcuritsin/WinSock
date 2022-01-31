@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0)
 		{
-			printf("%d bytes received\n", iResult);
+			printf("%d bytes received\n%s\n", iResult,recvbuf);
 		}
 		else if (iResult == 0)
 		{
